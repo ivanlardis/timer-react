@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Text, View, StyleSheet } from 'react-native';
-
+import SettingView from './presentation/setting/Setting';
 import Tabbar from 'react-native-tabbar-bottom'
 
 export default class HelloWorldApp extends Component {
@@ -20,9 +20,7 @@ export default class HelloWorldApp extends Component {
                 }
                 {this.state.page === "HomeScreen" && <Text>Screen1</Text>}
                 {this.state.page === "NotificationScreen" && <Text>Screen2</Text>}
-                {this.state.page === "ProfileScreen" && <Text>Screen3</Text>}
-                {this.state.page === "ChatScreen" && <Text>Screen4</Text>}
-                {this.state.page === "SearchScreen" && <Text>Screen5</Text>}
+                {this.state.page === "ProfileScreen" && <SettingView/>}
 
                 <Tabbar
                     stateFunc={(tab) => {
@@ -44,15 +42,7 @@ export default class HelloWorldApp extends Component {
                             page: "ProfileScreen",
                             icon: "person",
                         },
-                        {
-                            page: "ChatScreen",
-                            icon: "chatbubbles",
-                            badgeNumber: 7,
-                        },
-                        {
-                            page: "SearchScreen",
-                            icon: "search",
-                        },
+
                     ]}
                 />
             </View>
