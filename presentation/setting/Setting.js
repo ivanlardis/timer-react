@@ -1,12 +1,14 @@
 import React, {Component} from 'react';
 import {AppRegistry, Text, View, Image, TouchableOpacity, Alert} from 'react-native';
 import Prefs from "../utils/Prefs";
-
-
+import { Toolbar } from 'react-native-material-ui';
 export default class SettingView extends Component {
     render() {
         return (
             <View style={{alignItems: 'center'}}>
+                <Toolbar
+                    centerElement="Настройки"
+                />
                 <SettingItem type={PREFS_ENUM.PREPARATION_TIME}/>
                 <View style={{  height: 1,width:1000,backgroundColor:'blue'}}/>
                 <SettingItem type={PREFS_ENUM.CYCLE_COUNT}/>
@@ -52,7 +54,7 @@ class SettingItem extends Component {
     update() {
 
         prefs = new Prefs();
-        prefs.get(this.state.type)
+        prefs.get(this.props.type)
             .then(val => {
 
                 this.setState(
