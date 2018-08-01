@@ -1,40 +1,75 @@
+
+
+
 import React, {Component} from 'react';
-import {Text, View, Alert} from 'react-native';
+import { View, ListView, StyleSheet, Text,Alert } from 'react-native';
+import Prefs from "../utils/Prefs";
 
-export default class HistoryView extends Component {
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        marginTop: 20,
+    },
+});
 
-    componentWillMount() {
-        // this.subscription = Rx.Observable.presenter(0, 1000).timestamp().subscribe(::this.setState);
+export default class HistoryView  extends React.Component {
+    constructor(props) {
+        super(props);
+
+       this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        this.state = {
+            dataSource: this.ds
+        };
+    }
+
+
+    componentDidMount() {
 
         var historyRepository = new HistoryRepository();
+        historyRepository.getDataDB()
+            .then(array=>{
 
-        var historyView = new HistoryModel(
-            1,
-            2,
-            3,
-            3,
-            12121221,
-            "тест",
-        );
+                this.setState({
+                    dataSource: this.ds.cloneWithRows(array),
+                });
 
-        // historyRepository.saveDataDBsaveDataDB(historyView)
-        historyRepository.getDataDB( )
 
+            })
 
     }
 
+
     render() {
         return (
-            <View style={{alignItems: 'center'}}>
-                <Text>
-                    "тест"
-                </Text>
+            <ListView
+                style={styles.container}
+                dataSource={this.state.dataSource}
+                renderRow={(data) => <HistoryItem data={data} />}
+            />
+        );
+    }
+}
 
 
+
+
+class HistoryItem extends Component {
+    render() {
+
+        return (
+            <View style={{flex: 1, flexDirection: 'row'}}>
+                <View style={{flex: 1, flexDirection: 'row'}}>
+                    <Text>{this.props.data.name}</Text>
+                </View>
+                <View style={{flex: 1, flexDirection: 'row'}}>
+                    <Text>{this.props.data.time}</Text>
+                </View>
             </View>
         );
     }
 }
+
+
 
 
 class HistoryModel {
@@ -102,8 +137,6 @@ class HistoryRepository {
 
 
                 });
-                // Query results are updated in realtime
-                Alert.alert("" + trainList.length) // => 2
 
                 return trainList;
             })
