@@ -1,8 +1,5 @@
-
-
-
 import React, {Component} from 'react';
-import { View, ListView, StyleSheet, Text,Alert } from 'react-native';
+import {View, ListView, StyleSheet, Text, Alert, Button} from 'react-native';
 import Prefs from "../utils/Prefs";
 
 const styles = StyleSheet.create({
@@ -12,11 +9,11 @@ const styles = StyleSheet.create({
     },
 });
 
-export default class HistoryView  extends React.Component {
+export default class HistoryView extends React.Component {
     constructor(props) {
         super(props);
 
-       this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
             dataSource: this.ds
         };
@@ -25,32 +22,61 @@ export default class HistoryView  extends React.Component {
 
     componentDidMount() {
 
-        var historyRepository = new HistoryRepository();
-        historyRepository.getDataDB()
-            .then(array=>{
+        var historyRepository = new HistoryRepository(this);
+        historyRepository.getData()
 
-                this.setState({
-                    dataSource: this.ds.cloneWithRows(array),
-                });
-
-
-            })
 
     }
 
+    show(array) {
+     if(array.length>0){
+
+         this.setState({
+             dataSource: this.ds.cloneWithRows(array),
+         });
+
+     }
+
+
+    }
+
+    start() {
+
+        var historyRepository = new HistoryRepository(this);
+        historyRepository.saveDataDB(new HistoryModel(
+
+            1,
+            1,
+            1,
+            1,
+            new Date().getTime(),
+            "qwer"
+
+        ))
+
+        historyRepository.getData()
+
+
+    }
 
     render() {
-        return (
-            <ListView
-                style={styles.container}
-                dataSource={this.state.dataSource}
-                renderRow={(data) => <HistoryItem data={data} />}
-            />
+        return (<View  style={{ flex:1 }}>
+                <Button
+                    onPress={this.start.bind(this)}
+                    title="Start"
+                    color="#841584"
+                />
+
+                <ListView
+                    style={styles.container}
+                    dataSource={this.state.dataSource}
+                    renderRow={(data) => <HistoryItem data={data}/>}
+                />
+            </View>
+
         );
     }
 }
-
-
 
 
 class HistoryItem extends Component {
@@ -68,8 +94,6 @@ class HistoryItem extends Component {
         );
     }
 }
-
-
 
 
 class HistoryModel {
@@ -95,18 +119,13 @@ class HistoryModel {
 
 
 class HistoryRepository {
-
-
-    getDataDB() {
-        const Realm = require('realm');
-
-// Define your models and their properties
-        const CarSchema = {
+    constructor(view: HistoryView) {
+        this.view = view
+        this.CarSchema = {
             name: 'HistoryModel',
             primaryKey: 'time',
             properties: {
                 name: 'string',
-
                 time: {type: 'int', default: 0},
                 workTime: {type: 'int', default: 0},
                 setCount: {type: 'int', default: 0},
@@ -115,8 +134,53 @@ class HistoryRepository {
             }
         };
 
+    }
 
-       return Realm.open({schema: [CarSchema]})
+
+    getData() {
+
+
+        this.getDataDB()
+            .then(arr => {
+                this.view.show(arr)
+
+Alert.alert(""+arr.length)
+                // arr.forEach(item =>
+                //     this.saveDataNW(item)
+                // );
+                //
+                //
+                // this.getDataNV()
+                //     .then(items1 => {
+                //         Alert.alert("" + items1.length)
+                //         items1.forEach(item1 =>
+                //             this.saveDataDB(item1)
+                //         )
+                //
+                //
+                //         this.getDataDB()
+                //             .then(arr1 => {
+                //
+                //                 this.view.show(arr1)
+                //             });
+                //
+                //
+                //     })
+
+
+            })
+
+
+    }
+
+
+    getDataDB() {
+        const Realm = require('realm');
+
+// Define your models and their properties
+
+
+        return Realm.open({schema: [this.CarSchema]})
             .then(realm => {
                 // Create Realm objects and write to local storage
                 var trainList = [];
@@ -128,20 +192,17 @@ class HistoryRepository {
 
                 historyModels.forEach(historyModel => {
                     trainList.push(new HistoryModel(
-                        historyModel.name,
                         historyModel.cycleCount,
                         historyModel.restTime,
                         historyModel.setCount,
+                        historyModel.workTime,
                         historyModel.time,
-                        historyModel.workTime))
+                        historyModel.name))
 
 
                 });
 
                 return trainList;
-            })
-            .catch(error => {
-                console.log(error);
             });
     }
 
@@ -150,34 +211,21 @@ class HistoryRepository {
         const Realm = require('realm');
 
 // Define your models and their properties
-        const CarSchema = {
-            name: 'HistoryModel',
-            primaryKey: 'time',
-            properties: {
-                name: 'string',
-
-                time: {type: 'int', default: 0},
-                workTime: {type: 'int', default: 0},
-                setCount: {type: 'int', default: 0},
-                restTime: {type: 'int', default: 0},
-                cycleCount: {type: 'int', default: 0},
-            }
-        };
 
 
-        Realm.open({schema: [CarSchema]})
+        Realm.open({schema: [this.CarSchema]})
             .then(realm => {
                 // Create Realm objects and write to local storage
                 realm.write(() => {
                     const myCar = realm.create('HistoryModel', {
-                        name: historyModel.name,
+                        name: historyModel.toString(),
                         cycleCount: historyModel.cycleCount,
                         restTime: historyModel.restTime,
                         setCount: historyModel.setCount,
                         time: historyModel.time,
                         workTime: historyModel.workTime,
 
-                    });
+                    }, true);
 
                 });
 
@@ -185,19 +233,16 @@ class HistoryRepository {
                 const HistoryModels = realm.objects('HistoryModel');
 
 
-                // Query results are updated in realtime
-                Alert.alert("" + HistoryModels.length) // => 2
+                // Query results are updated in realtime > 2
             })
-            .catch(error => {
-                console.log(error);
-            });
+        ;
 
     }
 
     saveDataNW(historyModel: HistoryModel) {
 
-        fetch('https://timerble-8665b.firebaseio.com/messages.json', {
-            method: 'POST',
+        fetch("https://timerble-8665b.firebaseio.com/messages/"+historyModel+".json", {
+            method: 'PUT',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',

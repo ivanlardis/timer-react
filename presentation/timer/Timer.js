@@ -82,7 +82,6 @@ class TimerPresenter {
     async start() {
         var list =await this.getList();
 
-        Alert.alert(" " + list.length);
         interval(1000)
             .pipe(take(list.length))
             .subscribe(a => {
@@ -111,6 +110,8 @@ class TimerPresenter {
         var cycleCount = await prefs.get(PREFS_ENUM.CYCLE_COUNT);
 
         var trainList = [];
+
+
 
         for (let currentPreparationTime = 1;
              currentPreparationTime <= preparationTime;
