@@ -6,7 +6,7 @@ import {Observable, Subject, ReplaySubject, from, of, range, interval} from 'rxj
 import {map, filter, switchMap, take} from 'rxjs/operators';
 import Prefs from "../utils/Prefs";
 import {List} from "native-base";
-
+import Canvas from 'react-native-canvas';
 
 export default class Timer extends Component {
 
@@ -58,17 +58,33 @@ export default class Timer extends Component {
                     title="Stop"
                     color="#841584"
                 />
-                <Text>{this.state.value.cycleCount}</Text>
-                <Text>{this.state.value.maxValue}</Text>
-                <Text>{this.state.value.setCount}</Text>
-                <Text>{this.state.value.timeSec}</Text>
-                <Text>{this.state.value.type}</Text>
+                <CanvasTest/>
 
             </View>
         );
     }
 
 
+}
+
+class CanvasTest extends Component {
+
+    handleCanvas = (canvas) => {
+        canvas.width = 100;
+        canvas.height = 100;
+
+        const context = canvas.getContext('2d');
+
+        context.strokeStyle = 'red';
+        context.arc(50, 50, 49, Math.PI/2,Math.PI/2+ Math.PI * 2/2, true);
+        context.stroke();
+    }
+
+    render() {
+        return (
+            <Canvas ref={this.handleCanvas}/>
+        )
+    }
 }
 
 
@@ -80,7 +96,7 @@ class TimerPresenter {
 
 
     async start() {
-        var list =await this.getList();
+        var list = await this.getList();
 
         interval(1000)
             .pipe(take(list.length))
@@ -110,7 +126,6 @@ class TimerPresenter {
         var cycleCount = await prefs.get(PREFS_ENUM.CYCLE_COUNT);
 
         var trainList = [];
-
 
 
         for (let currentPreparationTime = 1;

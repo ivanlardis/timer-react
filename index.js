@@ -8,4 +8,4 @@ import SettingView from "./presentation/setting/Setting";
 import App from "./App";
 import HistoryView from "./presentation/history/History";
 
-AppRegistry.registerComponent(appName, () => HistoryView);
+AppRegistry.registerComponent(appName, () => Timer);
