@@ -144,28 +144,27 @@ class HistoryRepository {
             .then(arr => {
                 this.view.show(arr)
 
-Alert.alert(""+arr.length)
-                // arr.forEach(item =>
-                //     this.saveDataNW(item)
-                // );
+                arr.forEach(item =>
+                    this.saveDataNW(item)
+                );
                 //
                 //
-                // this.getDataNV()
-                //     .then(items1 => {
-                //         Alert.alert("" + items1.length)
-                //         items1.forEach(item1 =>
-                //             this.saveDataDB(item1)
-                //         )
-                //
-                //
-                //         this.getDataDB()
-                //             .then(arr1 => {
-                //
-                //                 this.view.show(arr1)
-                //             });
-                //
-                //
-                //     })
+                this.getDataNV()
+                    .then(items1 => {
+
+                        items1.forEach(item1 =>
+                            this.saveDataDB(item1)
+                        )
+
+
+                        this.getDataDB()
+                            .then(arr1 => {
+
+                                this.view.show(arr1)
+                            });
+
+
+                    })
 
 
             })
@@ -218,7 +217,7 @@ Alert.alert(""+arr.length)
                 // Create Realm objects and write to local storage
                 realm.write(() => {
                     const myCar = realm.create('HistoryModel', {
-                        name: historyModel.toString(),
+                        name: historyModel.name,
                         cycleCount: historyModel.cycleCount,
                         restTime: historyModel.restTime,
                         setCount: historyModel.setCount,
@@ -241,7 +240,7 @@ Alert.alert(""+arr.length)
 
     saveDataNW(historyModel: HistoryModel) {
 
-        fetch("https://timerble-8665b.firebaseio.com/messages/"+historyModel+".json", {
+        fetch("https://timerble-8665b.firebaseio.com/messages/"+historyModel.time.toString()+".json", {
             method: 'PUT',
             headers: {
                 Accept: 'application/json',
