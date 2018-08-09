@@ -2,6 +2,9 @@ import React, {Component} from 'react';
 import {View, ListView, StyleSheet, Text, Alert, Button} from 'react-native';
 import Prefs from "../utils/Prefs";
 
+import HistoryModel from "../history/HistoryModel";
+import {Toolbar} from 'react-native-material-ui';
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -9,9 +12,9 @@ const styles = StyleSheet.create({
     },
 });
 
-export default class HistoryView extends React.Component {
-    constructor(props) {
-        super(props);
+export default class HistoryView extends Component {
+    constructor() {
+        super();
 
         this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
@@ -21,7 +24,7 @@ export default class HistoryView extends React.Component {
 
 
     componentDidMount() {
-
+        //
         var historyRepository = new HistoryRepository(this);
         historyRepository.getData()
 
@@ -29,49 +32,48 @@ export default class HistoryView extends React.Component {
     }
 
     show(array) {
-     if(array.length>0){
+        if (array.length > 0) {
 
-         this.setState({
-             dataSource: this.ds.cloneWithRows(array),
-         });
+            this.setState({
+                dataSource: this.ds.cloneWithRows(array),
+            });
 
-     }
-
-
-    }
-
-    start() {
-
-        var historyRepository = new HistoryRepository(this);
-        historyRepository.saveDataDB(new HistoryModel(
-
-            1,
-            1,
-            1,
-            1,
-            new Date().getTime(),
-            "qwer"
-
-        ))
-
-        historyRepository.getData()
+        }
 
 
     }
+
 
     render() {
-        return (<View  style={{ flex:1 }}>
-                <Button
-                    onPress={this.start.bind(this)}
-                    title="Start"
-                    color="#841584"
+        return (<View style={{flex: 1}}>
+                <Toolbar
+                    centerElement="История"
+                    rightElement={
+
+                        {
+                            actions: ['reply'],
+
+                        }
+
+
+                    }
+
+                    onRightElementPress={(label) => {
+
+                        var historyRepository = new HistoryRepository(this);
+                        historyRepository.getData()
+
+                    }}
                 />
+
 
                 <ListView
                     style={styles.container}
                     dataSource={this.state.dataSource}
                     renderRow={(data) => <HistoryItem data={data}/>}
                 />
+
+
             </View>
 
         );
@@ -83,39 +85,28 @@ class HistoryItem extends Component {
     render() {
 
         return (
+            <View style={{flex: 1}}>
             <View style={{flex: 1, flexDirection: 'row'}}>
-                <View style={{flex: 1, flexDirection: 'row'}}>
-                    <Text>{this.props.data.name}</Text>
+                <View style={{flex: 1}}>
+                    <Text>Имя {this.props.data.name}</Text>
+                    <Text>Циклы {this.props.data.cycleCount}</Text>
+                    <Text>Отдых {this.props.data.restTime}</Text>
                 </View>
-                <View style={{flex: 1, flexDirection: 'row'}}>
-                    <Text>{this.props.data.time}</Text>
+                <View style={{flex: 1}}>
+                    <Text>{ this.props.data.time}</Text>
+                    <Text>Сеты {this.props.data.setCount}</Text>
+                    <Text>Работа {this.props.data.workTime}</Text>
                 </View>
+            </View>
+                <View style={{width: 3350, height: 1, backgroundColor: 'powderblue'}} />
+
             </View>
         );
     }
 }
 
 
-class HistoryModel {
-    constructor(
-        cycleCount: int,
-        restTime: int,
-        setCount: int,
-        workTime: int,
-        time: In64,
-        name: string) {
 
-        this.cycleCount = cycleCount;
-        this.restTime = restTime;
-        this.setCount = setCount;
-        this.workTime = workTime;
-        this.time = time;
-        this.name = name;
-
-
-    }
-
-}
 
 
 class HistoryRepository {
@@ -142,7 +133,7 @@ class HistoryRepository {
 
         this.getDataDB()
             .then(arr => {
-                this.view.show(arr)
+                this.view.show(arr);
 
                 arr.forEach(item =>
                     this.saveDataNW(item)
@@ -151,7 +142,6 @@ class HistoryRepository {
                 //
                 this.getDataNV()
                     .then(items1 => {
-
                         items1.forEach(item1 =>
                             this.saveDataDB(item1)
                         )
@@ -228,11 +218,8 @@ class HistoryRepository {
 
                 });
 
-                // Query Realm for all cars with a high mileage
-                const HistoryModels = realm.objects('HistoryModel');
 
 
-                // Query results are updated in realtime > 2
             })
         ;
 
@@ -240,7 +227,7 @@ class HistoryRepository {
 
     saveDataNW(historyModel: HistoryModel) {
 
-        fetch("https://timerble-8665b.firebaseio.com/messages/"+historyModel.time.toString()+".json", {
+        fetch("https://timerble-8665b.firebaseio.com/messages/" + historyModel.time.toString() + ".json", {
             method: 'PUT',
             headers: {
                 Accept: 'application/json',

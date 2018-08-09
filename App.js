@@ -38,7 +38,6 @@ export default class HelloWorldApp extends Component {
                         {
                             page: "NotificationScreen",
                             icon: "notifications",
-                            badgeNumber: 11,
                         },
                         {
                             page: "ProfileScreen",
