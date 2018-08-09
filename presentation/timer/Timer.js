@@ -166,15 +166,15 @@ class CanvasTest extends Component {
     componentWillReceiveProps(nextProps) {
         // You don't have to do this check first, but it can help prevent an unneeded render
 
-        Alert.alert("search")
             this.setState({ value: nextProps.data });
-       this.render()
+        this.forceUpdate()
 
     }
 
     handleCanvas = (canvas) => {
 
         if (canvas) {
+
             canvas.width = 150;
             canvas.height = 150;
 
@@ -186,7 +186,7 @@ class CanvasTest extends Component {
             context.arc(75, 75, 70, Math.PI / 2, Math.PI / 2 + Math.PI * 2/2 , true);
             context.stroke();
             context.textAlign = "center";
-            context.fillText( this.state.value.type,75,75);
+            context.fillText( this.state.value.timeSec,75,75);
             //
             //
             // context1.moveTo(0, 50);
@@ -197,8 +197,9 @@ class CanvasTest extends Component {
     }
 
     render() {
+
         return (
-            <Canvas ref={this.handleCanvas} data={this.props.data} />
+            <Canvas ref={this.handleCanvas.bind(this)} data={this.props.data} />
         )
     }
 }
