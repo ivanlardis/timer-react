@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {AppRegistry, Text, Button, View, Image, TouchableOpacity, StyleSheet,Alert} from 'react-native';
+import {AppRegistry, Text, Button, View, Image, TouchableOpacity, StyleSheet, Alert} from 'react-native';
 import {Toolbar} from 'react-native-material-ui';
 
 import {Observable, Subject, ReplaySubject, from, of, range, interval} from 'rxjs';
@@ -12,9 +12,9 @@ import Canvas from 'react-native-canvas';
 export default class Timer extends Component {
 
     state = {
-        value: new ModelTimer(TYPE.WORK_TIME,
-            0,
-            0,
+        value: new ModelTimer(TYPE.EMPTY,
+            1,
+            1,
             0, 0)
     }
 
@@ -28,6 +28,12 @@ export default class Timer extends Component {
         // this.subscription = Rx.Observable.presenter(0, 1000).timestamp().subscribe(::this.setState);
 
         this.presenter = new TimerPresenter(this)
+    }
+
+    componentWillUnmount() {
+        this.presenter.stop()
+
+
     }
 
     show(a: ModelTimer) {
@@ -84,7 +90,7 @@ export default class Timer extends Component {
                     />
 
 
-                    <Text style={{textAlign: 'center'}}>{this.state.value.type}</Text>
+                    <Text style={{textAlign: 'center', fontSize: 24}}>{this.state.value.type}</Text>
                 </View>
 
 
@@ -92,19 +98,19 @@ export default class Timer extends Component {
                     style={styles.container}>
 
 
-                        <CanvasTest data={this.state.value} style={styles.center}/>
+                    <CanvasTest data={this.state.value} style={styles.center}/>
 
 
                 </View>
-                <View style={{height: 100}}>
+                <View style={{height: 120}}>
 
                     <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                        <View style={{flex: 1}}>
-                            <Text>{this.state.value.setCount} </Text>
+                        <View style={{flex: 1,  padding: 20,}}>
+                            <Text style={{fontSize: 24}}>Сет {this.state.value.setCount} </Text>
 
                         </View>
-                        <View style={{flex: 1}}>
-                            <Text style={{textAlign: 'right'}}>{this.state.value.cycleCount}</Text>
+                        <View style={{flex: 1,  padding: 20,}}>
+                            <Text style={{textAlign: 'right', fontSize: 24}}>Цикл {this.state.value.cycleCount}</Text>
 
                         </View>
                     </View>
@@ -124,30 +130,29 @@ var styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#F5FCFF',
         marginTop: 24
     },
-    topLeft:{
+    topLeft: {
         position: 'absolute',
         left: 0,
         top: 0
     },
-    topRight:{
+    topRight: {
         position: 'absolute',
         right: 0,
         top: 0
     },
-    bottomLeft:{
+    bottomLeft: {
         position: 'absolute',
         left: 0,
         bottom: 0
     },
-    bottomRight:{
+    bottomRight: {
         position: 'absolute',
         right: 0,
         bottom: 0
-    }  ,
-    center:{
+    },
+    center: {
         position: 'absolute',
         right: 75,
         bottom: 75
@@ -166,7 +171,7 @@ class CanvasTest extends Component {
     componentWillReceiveProps(nextProps) {
         // You don't have to do this check first, but it can help prevent an unneeded render
 
-            this.setState({ value: nextProps.data });
+        this.setState({value: nextProps.data});
         this.forceUpdate()
 
     }
@@ -174,19 +179,20 @@ class CanvasTest extends Component {
     handleCanvas = (canvas) => {
 
         if (canvas) {
-
+            var modelTimer = this.state.value;
             canvas.width = 150;
             canvas.height = 150;
 
             const context = canvas.getContext('2d');
 
             context.strokeStyle = '#3D9CF5';
-            context.lineWidth=4;
+            context.lineWidth = 4;
 
-            context.arc(75, 75, 70, Math.PI / 2, Math.PI / 2 + Math.PI * 2/2 , true);
+            context.arc(75, 75, 70, -Math.PI / 2, -Math.PI / 2 - 0.000001 - (Math.PI * 2) * (modelTimer.timeSec / modelTimer.maxValue), false);
             context.stroke();
             context.textAlign = "center";
-            context.fillText( this.state.value.timeSec,75,75);
+            context.font = "40px Arial";
+            context.fillText(modelTimer.timeSec, 75, 85);
             //
             //
             // context1.moveTo(0, 50);
@@ -199,7 +205,7 @@ class CanvasTest extends Component {
     render() {
 
         return (
-            <Canvas ref={this.handleCanvas.bind(this)} data={this.props.data} />
+            <Canvas ref={this.handleCanvas.bind(this)} data={this.props.data}/>
         )
     }
 }
@@ -220,14 +226,15 @@ class TimerPresenter {
                 cycleCount: {type: 'int', default: 0},
             }
         };
-
+        this.subscription
     }
 
 
     async start() {
+        this.clear();
         var list = await this.getList();
 
-        interval(1000)
+        this.subscription = interval(1000)
             .pipe(take(list.length))
             .subscribe(a => {
 
@@ -238,7 +245,18 @@ class TimerPresenter {
     }
 
     stop() {
+        this.clear();
+        this.timer.show(new ModelTimer(TYPE.EMPTY,
+            1,
+            1,
+            0, 0)
+        )
+    }
 
+    clear() {
+        if (this.subscription != null) {
+            this.subscription.unsubscribe()
+        }
     }
 
     saveDataDB(historyModel: HistoryModel) {
@@ -370,9 +388,9 @@ class ModelTimer {
 }
 
 TYPE = {
-    EMPTY: "EMPTY",
-    PREPARATION_TIME: "PREPARATION_TIME",
-    WORK_TIME: "WORK_TIME",
-    REST_TIME: "REST_TIME",
-    REST_BETWEEN_SETS_COUNT: "REST_BETWEEN_SETS_COUNT"
+    EMPTY: "Начать?",
+    PREPARATION_TIME: "ПОДГОТОВКА",
+    WORK_TIME: "РОБОТА",
+    REST_TIME: "ОТДЫХ",
+    REST_BETWEEN_SETS_COUNT: "ОТДЫХ МЕЖДУ ПОДХОДАМИ"
 }
