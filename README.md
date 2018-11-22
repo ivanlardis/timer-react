@@ -1,4 +1,6 @@
-# timer-react
+# timer-react 
+статья на хабре - https://habr.com/company/onetrak/blog/430566/
+
 4 приложения (говнокод) Приложения написаны для понимания
 плюсов и минусов кросплатформености 
 
@@ -10,41 +12,7 @@
 
 4)Нативного android https://github.com/ivanlardis/timer-android
 
-Проанализировано
-
--Размер APK - hello world / готовый проект
-
--Скорости разработки
-
--Custom View
-
--Многопоточность
-
-![alt text](http://lardis.ru/gitfolder/3.png)
-
--DB
-
--table view/list view
-
--NETWORK
-
-![alt text](http://lardis.ru/gitfolder/1.png)
-
-
--Preferences/UserDefaults
-
-![alt text](http://lardis.ru/gitfolder/2.png)
-
-
--Куски презентации
-
-
-![alt text](http://lardis.ru/gitfolder/4.png)
-
-
-
-![alt text](http://lardis.ru/gitfolder/5.png)
-
+ 
 Подробнее
 # вк - https://vk.com/larinivan
 
